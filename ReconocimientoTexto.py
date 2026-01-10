@@ -77,6 +77,13 @@ def desicion(texto: str) -> bool:
     if not texto:
         return True
 
+    if not texto.startswith("nova"):
+        return True
+
+    texto = texto.replace("nova", "", 1).strip()
+    if not texto:
+        return True
+
     if esperando_cancion:
         esperando_cancion = False
         reproducirCancionSpotify(texto)
