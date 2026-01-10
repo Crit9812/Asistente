@@ -5,8 +5,6 @@ import pywhatkit
 import time
 import pyautogui  # <-- ÚNICO IMPORT NUEVO
 import os
-import webbrowser
-from urllib.parse import quote
 
 
 speaker = win32com.client.Dispatch("SAPI.SpVoice")
@@ -48,9 +46,7 @@ def mensajeWhatsAPP(numero: str, mensaje: str):
 
 
 def reproducirCancionSpotify(nombre_cancion: str):
-    consulta = quote(nombre_cancion)
-    url = f"https://open.spotify.com/search/{consulta}"
-    webbrowser.open(url)
+    pywhatkit.playonyt(nombre_cancion)
 
 
 def desicion(texto: str) -> bool:
