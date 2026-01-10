@@ -77,10 +77,10 @@ def desicion(texto: str) -> bool:
     if not texto:
         return True
 
-    if not texto.startswith("nova"):
+    if not texto.startswith("luna"):
         return True
 
-    texto = texto.replace("nova", "", 1).strip()
+    texto = texto.replace("luna", "", 1).strip()
     if not texto:
         return True
 
