@@ -8,6 +8,7 @@ import os
 import unicodedata
 import webbrowser
 from urllib.parse import quote
+import re
 
 
 speaker = win32com.client.Dispatch("SAPI.SpVoice")
@@ -50,8 +51,23 @@ def mensajeWhatsAPP(numero: str, mensaje: str):
 
 def reproducirCancionSpotify(nombre_cancion: str):
     consulta = quote(nombre_cancion)
-    url = f"https://www.youtube.com/results?search_query={consulta}"
-    webbrowser.open(url, new=0)
+    busqueda_url = f"https://www.youtube.com/results?search_query={consulta}"
+    try:
+        request = urllib.request.Request(
+            busqueda_url,
+            headers={"User-Agent": "Mozilla/5.0"},
+        )
+        respuesta = urllib.request.urlopen(request, timeout=5).read().decode("utf-8")
+        coincidencia = re.search(r"watch\\?v=([\\w-]{11})", respuesta)
+        if coincidencia:
+            video_id = coincidencia.group(1)
+            video_url = f"https://www.youtube.com/watch?v={video_id}&autoplay=1"
+            webbrowser.open(video_url, new=0)
+            return
+    except Exception:
+        pass
+
+    webbrowser.open(busqueda_url, new=0)
 
 
 def normalizarTexto(texto: str) -> str:
