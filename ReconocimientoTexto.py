@@ -5,6 +5,8 @@ import pywhatkit
 import time
 import pyautogui  # <-- ÚNICO IMPORT NUEVO
 import os
+import webbrowser
+from urllib.parse import quote
 
 
 speaker = win32com.client.Dispatch("SAPI.SpVoice")
@@ -12,6 +14,7 @@ speaker = win32com.client.Dispatch("SAPI.SpVoice")
 # === Luces (ya tenías esto) ===
 ESP_IP = "192.168.1.50"
 NUM_STRIPS = 3
+esperando_cancion = False
 
 
 def hablar(texto: str):
@@ -44,12 +47,26 @@ def mensajeWhatsAPP(numero: str, mensaje: str):
     time.sleep(1)
 
 
+def reproducirCancionSpotify(nombre_cancion: str):
+    consulta = quote(nombre_cancion)
+    url = f"https://open.spotify.com/search/{consulta}"
+    webbrowser.open(url)
+
+
 def desicion(texto: str) -> bool:
     """
     Procesa lo escrito y decide si el modo debe continuar.
     Retorna True para seguir, False para salir del modo.
     """
+    global esperando_cancion
+
     if not texto:
+        return True
+
+    if esperando_cancion:
+        esperando_cancion = False
+        reproducirCancionSpotify(texto)
+        hablar(f"Claro aquí está la canción {texto}")
         return True
 
     if texto == "salir":
@@ -64,6 +81,10 @@ def desicion(texto: str) -> bool:
 
     elif texto == "enciende las luces":
         encenderLuces()
+
+    elif texto == "quiero una cancion":
+        hablar("Si cual quieres")
+        esperando_cancion = True
 
     elif texto == "apaga la computadora":
         hablar("Apagando la computadora")
