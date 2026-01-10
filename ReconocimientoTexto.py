@@ -44,6 +44,14 @@ def mensajeWhatsAPP(numero: str, mensaje: str):
     time.sleep(1)
 
 
+def detenerMusica():
+    pyautogui.press("stop")
+
+
+def reanudarMusica():
+    pyautogui.press("playpause")
+
+
 def desicion(texto: str) -> bool:
     """
     Procesa lo escrito y decide si el modo debe continuar.
@@ -69,6 +77,11 @@ def desicion(texto: str) -> bool:
         hablar("Apagando la computadora")
         apagarComputadora()
 
+    elif any(frase in texto for frase in ["pausa", "pausar", "para la musica", "para la música", "deten la musica", "deten la música"]):
+        detenerMusica()
+
+    elif any(frase in texto for frase in ["continua", "continúa", "reproduce la musica", "reproduce la música", "reanuda la musica", "reanuda la música"]):
+        reanudarMusica()
 
     elif texto.startswith("manda un mensaje por whatsapp"):
         mensaje = texto.replace("dile a octavio en whatsapp que", "", 1).strip()
