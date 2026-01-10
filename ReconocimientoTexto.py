@@ -5,6 +5,8 @@ import pywhatkit
 import time
 import pyautogui  # <-- ÚNICO IMPORT NUEVO
 import os
+import unicodedata
+import webbrowser
 
 
 speaker = win32com.client.Dispatch("SAPI.SpVoice")
@@ -12,6 +14,8 @@ speaker = win32com.client.Dispatch("SAPI.SpVoice")
 # === Luces (ya tenías esto) ===
 ESP_IP = "192.168.1.50"
 NUM_STRIPS = 3
+esperando_cancion = False
+ventana_youtube_abierta = False
 
 
 def hablar(texto: str):
@@ -44,11 +48,56 @@ def mensajeWhatsAPP(numero: str, mensaje: str):
     time.sleep(1)
 
 
+def reproducirCancionSpotify(nombre_cancion: str):
+    global ventana_youtube_abierta
+    video_url = pywhatkit.playonyt(nombre_cancion, open_video=False)
+    if not ventana_youtube_abierta:
+        webbrowser.open(video_url, new=0)
+        ventana_youtube_abierta = True
+        return
+
+    pyautogui.hotkey("ctrl", "l")
+    pyautogui.typewrite(video_url)
+    pyautogui.press("enter")
+
+
+def normalizarTexto(texto: str) -> str:
+    return "".join(
+        caracter
+        for caracter in unicodedata.normalize("NFD", texto)
+        if unicodedata.category(caracter) != "Mn"
+    )
+
+
+def esSolicitudCancion(texto: str) -> bool:
+    texto_normalizado = normalizarTexto(texto)
+    palabras_clave = ("cancion", "musica")
+    verbos = ("quiero", "pon", "ponme", "reproduce", "reproducir", "toca", "escuchar")
+    return any(palabra in texto_normalizado for palabra in palabras_clave) and any(
+        verbo in texto_normalizado for verbo in verbos
+    )
+
+
 def desicion(texto: str) -> bool:
     """
     Procesa lo escrito y decide si el modo debe continuar.
     Retorna True para seguir, False para salir del modo.
     """
+    global esperando_cancion
+
+    if esperando_cancion:
+        esperando_cancion = False
+        reproducirCancionSpotify(texto)
+        hablar(f"Claro aquí está la canción {texto}")
+        return True
+
+    if not texto:
+        return True
+
+    if not texto.startswith("luna"):
+        return True
+
+    texto = texto.replace("luna", "", 1).strip()
     if not texto:
         return True
 
@@ -64,6 +113,10 @@ def desicion(texto: str) -> bool:
 
     elif texto == "enciende las luces":
         encenderLuces()
+
+    elif esSolicitudCancion(texto):
+        hablar("Si cual quieres")
+        esperando_cancion = True
 
     elif texto == "apaga la computadora":
         hablar("Apagando la computadora")
