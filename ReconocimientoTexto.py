@@ -6,6 +6,8 @@ import time
 import pyautogui  # <-- ÚNICO IMPORT NUEVO
 import os
 import unicodedata
+import webbrowser
+from urllib.parse import quote
 
 
 speaker = win32com.client.Dispatch("SAPI.SpVoice")
@@ -47,7 +49,9 @@ def mensajeWhatsAPP(numero: str, mensaje: str):
 
 
 def reproducirCancionSpotify(nombre_cancion: str):
-    pywhatkit.playonyt(nombre_cancion)
+    consulta = quote(nombre_cancion)
+    url = f"https://www.youtube.com/results?search_query={consulta}"
+    webbrowser.open(url, new=0)
 
 
 def normalizarTexto(texto: str) -> str:
@@ -74,6 +78,12 @@ def desicion(texto: str) -> bool:
     """
     global esperando_cancion
 
+    if esperando_cancion:
+        esperando_cancion = False
+        reproducirCancionSpotify(texto)
+        hablar(f"Claro aquí está la canción {texto}")
+        return True
+
     if not texto:
         return True
 
@@ -82,12 +92,6 @@ def desicion(texto: str) -> bool:
 
     texto = texto.replace("luna", "", 1).strip()
     if not texto:
-        return True
-
-    if esperando_cancion:
-        esperando_cancion = False
-        reproducirCancionSpotify(texto)
-        hablar(f"Claro aquí está la canción {texto}")
         return True
 
     if texto == "salir":
