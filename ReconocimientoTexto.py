@@ -61,6 +61,14 @@ def reproducirCancionSpotify(nombre_cancion: str):
     pyautogui.press("enter")
 
 
+def pausarMusica():
+    pyautogui.press("k")
+
+
+def reanudarMusica():
+    pyautogui.press("k")
+
+
 def normalizarTexto(texto: str) -> str:
     return "".join(
         caracter
@@ -76,6 +84,33 @@ def esSolicitudCancion(texto: str) -> bool:
     return any(palabra in texto_normalizado for palabra in palabras_clave) and any(
         verbo in texto_normalizado for verbo in verbos
     )
+
+
+def esSolicitudPausa(texto: str) -> bool:
+    texto_normalizado = normalizarTexto(texto)
+    palabras_clave = ("cancion", "musica")
+    verbos = ("pausa", "pausar", "para", "parar", "deten", "detener")
+    return (any(verbo in texto_normalizado for verbo in verbos) and any(
+        palabra in texto_normalizado for palabra in palabras_clave
+    )) or "pausa" in texto_normalizado
+
+
+def esSolicitudReanudar(texto: str) -> bool:
+    texto_normalizado = normalizarTexto(texto)
+    palabras_clave = ("cancion", "musica")
+    verbos = (
+        "continua",
+        "continuar",
+        "reanuda",
+        "reanudar",
+        "sigue",
+        "seguir",
+        "reproduce",
+        "reproducir",
+    )
+    return (any(verbo in texto_normalizado for verbo in verbos) and any(
+        palabra in texto_normalizado for palabra in palabras_clave
+    )) or "continue" in texto_normalizado
 
 
 def desicion(texto: str) -> bool:
@@ -113,6 +148,14 @@ def desicion(texto: str) -> bool:
 
     elif texto == "enciende las luces":
         encenderLuces()
+
+    elif esSolicitudPausa(texto):
+        hablar("Pausando la música")
+        pausarMusica()
+
+    elif esSolicitudReanudar(texto):
+        hablar("Reanudando la música")
+        reanudarMusica()
 
     elif esSolicitudCancion(texto):
         hablar("Si cual quieres")
