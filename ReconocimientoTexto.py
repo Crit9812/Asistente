@@ -63,6 +63,9 @@ def reproducirCancionSpotify(nombre_cancion: str):
             video_id = coincidencia.group(1)
             video_url = f"https://www.youtube.com/watch?v={video_id}&autoplay=1"
             webbrowser.open(video_url, new=0)
+            time.sleep(3)
+            pyautogui.press("k")
+            pyautogui.press("space")
             return
     except Exception:
         pass
