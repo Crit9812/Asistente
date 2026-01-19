@@ -30,13 +30,25 @@ def _activar_ventana_whatsapp(reintentos: int = 5, pausa: float = 0.3) -> bool:
         for ventana in ventanas:
             try:
                 ventana.activate()
-                time.sleep(pausa)
+                _enfocar_ventana(ventana, pausa)
                 return True
             except Exception:
                 continue
         time.sleep(pausa)
 
     return False
+
+
+def _enfocar_ventana(ventana, pausa: float):
+    try:
+        x = ventana.left + (ventana.width // 2)
+        y = ventana.top + (ventana.height // 2)
+        posicion_actual = pyautogui.position()
+        pyautogui.click(x, y)
+        time.sleep(pausa)
+        pyautogui.moveTo(posicion_actual)
+    except Exception:
+        time.sleep(pausa)
 
 
 def _asegurar_ventana_whatsapp() -> bool:
