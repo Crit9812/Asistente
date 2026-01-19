@@ -68,8 +68,11 @@ def handle(comando: str, estado: AssistantState) -> SkillResult:
         ).start()
 
     def _enviar_y_confirmar(numero: str, mensaje: str):
-        mensajeWhatsAPP(numero, mensaje)
-        hablar("Mensaje enviado.")
+        enviado = mensajeWhatsAPP(numero, mensaje)
+        if enviado:
+            hablar("Mensaje enviado.")
+        else:
+            hablar("No pude confirmar el envío. Abre WhatsApp y vuelve a intentar.")
 
     if estado.safe_mode:
         return SkillResult(True, "Modo seguro activo: no puedo enviar mensajes.", detected_intent="whatsapp")
