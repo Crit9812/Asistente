@@ -23,6 +23,25 @@ from utils.texto import contiene_frase, normalizar_texto
 
 estado = AssistantState()
 
+# Comandos disponibles y acciones:
+# - "Luna": activa escucha temporal (30s) para comandos sin repetir "Luna".
+# - "apaga/enciende las luces": controla luces.
+# - "pon música / reproduce música": pide canción o reproduce si se da el título.
+# - "pausa / reanuda": controla reproducción.
+# - "manda a <contacto>: <mensaje>": prepara WhatsApp y pide confirmación con código.
+# - "cambia contacto": reinicia flujo de WhatsApp.
+# - "recuérdame <texto> en X minutos/horas/mañana a las HH:MM": crea recordatorio.
+# - "pon alarma en X minutos/horas/a las HH:MM": crea alarma.
+# - "lista recordatorios / cancela recordatorio": gestiona recordatorios.
+# - "agrega tarea: <texto> / qué tareas tengo / marca <tarea> como hecha": tareas.
+# - "guarda nota: <texto>": notas rápidas.
+# - "qué hora es / dame la hora": dice la hora.
+# - "sube/baja volumen <n> / volumen a <n>": ajusta volumen.
+# - "repite la última acción / deshaz eso": repite o revierte la acción previa.
+# - "modo silencioso / modo público": controla lectura de mensajes.
+# - "modo seguro / modo niño": bloquea acciones peligrosas.
+# - "código de voz <palabra>": cambia palabra de confirmación.
+# - "salir": finaliza la sesión.
 
 def decir(texto: str):
     estado.memory["last_response"] = texto

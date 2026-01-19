@@ -1,3 +1,5 @@
+import threading
+
 from core.state import (
     AssistantState,
     STATE_WAIT_WHATSAPP_CONTACT,
@@ -55,6 +57,13 @@ def _confirmado(comando: str, estado: AssistantState) -> bool:
 
 
 def handle(comando: str, estado: AssistantState) -> SkillResult:
+    def enviar_en_segundo_plano(numero: str, mensaje: str):
+        threading.Thread(
+            target=mensajeWhatsAPP,
+            args=(numero, mensaje),
+            daemon=True,
+        ).start()
+
     if estado.safe_mode:
         return SkillResult(True, "Modo seguro activo: no puedo enviar mensajes.", detected_intent="whatsapp")
 
@@ -82,7 +91,7 @@ def handle(comando: str, estado: AssistantState) -> SkillResult:
             numero = CONTACTOS_WHATSAPP.get(estado.memory.get("last_contact", ""))
             mensaje = estado.memory.get("last_message", "")
             if numero and mensaje:
-                mensajeWhatsAPP(numero, mensaje)
+                enviar_en_segundo_plano(numero, mensaje)
                 estado.set_last_action("whatsapp_enviar", {
                     "contacto": estado.memory.get("last_contact", ""),
                     "mensaje": mensaje,

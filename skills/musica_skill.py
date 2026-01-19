@@ -1,3 +1,5 @@
+import threading
+
 from musica import (
     esSolicitudCancion,
     esSolicitudPausa,
@@ -36,10 +38,17 @@ def match(comando: str, estado: AssistantState) -> bool:
 
 
 def handle(comando: str, estado: AssistantState) -> SkillResult:
+    def reproducir_en_segundo_plano(cancion: str):
+        threading.Thread(
+            target=reproducirCancionSpotify,
+            args=(cancion,),
+            daemon=True,
+        ).start()
+
     if estado.current_state == STATE_WAIT_SONG:
         estado.current_state = STATE_IDLE
         estado.memory["last_song"] = comando
-        reproducirCancionSpotify(comando)
+        reproducir_en_segundo_plano(comando)
         estado.set_last_action("musica_reproducir", {"cancion": comando})
         return SkillResult(True, f"Claro aquí está la canción {comando}", detected_intent="musica")
 
@@ -65,14 +74,14 @@ def handle(comando: str, estado: AssistantState) -> SkillResult:
         cancion = estado.memory.get("last_song", "")
         if not cancion:
             return SkillResult(True, "No tengo una canción anterior para repetir.", detected_intent="musica")
-        reproducirCancionSpotify(cancion)
+        reproducir_en_segundo_plano(cancion)
         estado.set_last_action("musica_reproducir", {"cancion": cancion})
         return SkillResult(True, f"Reproduciendo la misma canción: {cancion}", detected_intent="musica")
 
     match_cancion = extraer_regex(r"(pon|reproduce)\s+(.+)", comando)
     if match_cancion:
         cancion = match_cancion.group(2).strip()
-        reproducirCancionSpotify(cancion)
+        reproducir_en_segundo_plano(cancion)
         estado.memory["last_song"] = cancion
         estado.set_last_action("musica_reproducir", {"cancion": cancion})
         return SkillResult(True, f"Reproduciendo {cancion}", detected_intent="musica")

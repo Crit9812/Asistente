@@ -1,3 +1,5 @@
+import threading
+
 from core.state import AssistantState
 from luces import apagarLuces, encenderLuces
 from musica import pausarMusica, reanudarMusica, reproducirCancionSpotify
@@ -34,6 +36,13 @@ def _deshacer(accion: dict) -> SkillResult:
     tipo = accion.get("type")
     payload = accion.get("payload", {})
 
+    def reproducir_en_segundo_plano(cancion: str):
+        threading.Thread(
+            target=reproducirCancionSpotify,
+            args=(cancion,),
+            daemon=True,
+        ).start()
+
     if tipo == "luces_apagar":
         encenderLuces()
         return SkillResult(True, "Listo, volví a encender las luces.")
@@ -49,7 +58,7 @@ def _deshacer(accion: dict) -> SkillResult:
     if tipo == "musica_reproducir":
         cancion = payload.get("cancion")
         if cancion:
-            reproducirCancionSpotify(cancion)
+            reproducir_en_segundo_plano(cancion)
             return SkillResult(True, f"Reproduciendo {cancion}.")
     return SkillResult(True, "No puedo deshacer esa acción.")
 
@@ -57,6 +66,13 @@ def _deshacer(accion: dict) -> SkillResult:
 def _repetir(accion: dict) -> SkillResult:
     tipo = accion.get("type")
     payload = accion.get("payload", {})
+
+    def reproducir_en_segundo_plano(cancion: str):
+        threading.Thread(
+            target=reproducirCancionSpotify,
+            args=(cancion,),
+            daemon=True,
+        ).start()
 
     if tipo == "luces_apagar":
         apagarLuces()
@@ -73,6 +89,6 @@ def _repetir(accion: dict) -> SkillResult:
     if tipo == "musica_reproducir":
         cancion = payload.get("cancion")
         if cancion:
-            reproducirCancionSpotify(cancion)
+            reproducir_en_segundo_plano(cancion)
             return SkillResult(True, f"Reproduciendo {cancion}.")
     return SkillResult(True, "No puedo repetir esa acción.")
