@@ -56,7 +56,10 @@ def _confirmado(comando: str, estado: AssistantState) -> bool:
     comando_normalizado = normalizar_texto(comando)
     if "no" in comando_normalizado:
         return False
-    return contiene_frase(comando_normalizado, ("si", "sí", "confirmo", "adelante"))
+    return contiene_frase(
+        comando_normalizado,
+        ("si", "sí", "confirmo", "confirmar", "sigue", "continua", "continuar", "adelante"),
+    )
 
 
 def handle(comando: str, estado: AssistantState) -> SkillResult:
