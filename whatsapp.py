@@ -16,9 +16,15 @@ def mensajeWhatsAPP(numero: str, mensaje: str) -> bool:
     if not _esperar_whatsapp_listo(inicio=inicio):
         return False
 
+    if not _enfocar_input_whatsapp():
+        return False
+
     pyautogui.press("enter")
 
     time.sleep(1)
+    if _asegurar_ventana_whatsapp() and _enfocar_input_whatsapp():
+        pyautogui.press("enter")
+        time.sleep(0.5)
     return True
 
 
@@ -51,6 +57,32 @@ def _enfocar_ventana(ventana, pausa: float):
         pyautogui.moveTo(posicion_actual)
     except Exception:
         time.sleep(pausa)
+
+
+def _enfocar_input_whatsapp(pausa: float = 0.3) -> bool:
+    try:
+        ventana = pyautogui.getActiveWindow()
+    except AttributeError:
+        return False
+
+    if not ventana:
+        return False
+
+    titulo = getattr(ventana, "title", "") or ""
+    if "whatsapp" not in titulo.lower():
+        return False
+
+    try:
+        x = ventana.left + (ventana.width // 2)
+        y = ventana.top + max(120, ventana.height - 140)
+        posicion_actual = pyautogui.position()
+        pyautogui.click(x, y)
+        time.sleep(pausa)
+        pyautogui.moveTo(posicion_actual)
+        return True
+    except Exception:
+        time.sleep(pausa)
+        return False
 
 
 def _asegurar_ventana_whatsapp() -> bool:
