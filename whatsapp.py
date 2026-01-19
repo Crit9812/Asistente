@@ -1,17 +1,15 @@
 import time
+import webbrowser
+from urllib.parse import quote
 
 import pyautogui
-import pywhatkit
 
 
 def mensajeWhatsAPP(numero: str, mensaje: str) -> bool:
-    # Abre WhatsApp Web y envía el mensaje al contacto/numero
-    # wait_time: segundos para que cargue WhatsApp Web antes de enviar
-    pywhatkit.sendwhatmsg_instantly(numero, mensaje, wait_time=15, tab_close=True, close_time=3)
+    url = _construir_url_whatsapp(numero, mensaje)
+    webbrowser.open(url, new=0)
 
-    # <-- ÚNICA MODIFICACIÓN REAL: presionar Enter para enviarlo
-    time.sleep(2)
-    if not _asegurar_ventana_whatsapp():
+    if not _esperar_y_enfocar_whatsapp():
         return False
 
     pyautogui.press("enter")
@@ -71,3 +69,17 @@ def _es_ventana_whatsapp_activa() -> bool:
         return False
 
     return "whatsapp" in titulo.lower()
+
+
+def _construir_url_whatsapp(numero: str, mensaje: str) -> str:
+    mensaje_codificado = quote(mensaje)
+    return f"https://web.whatsapp.com/send?phone={numero}&text={mensaje_codificado}"
+
+
+def _esperar_y_enfocar_whatsapp(timeout: float = 20.0, pausa: float = 0.5) -> bool:
+    limite = time.time() + timeout
+    while time.time() < limite:
+        if _asegurar_ventana_whatsapp():
+            return True
+        time.sleep(pausa)
+    return False
