@@ -1,3 +1,5 @@
+import random
+
 from escuchar import reconocerVoz
 from hablar import hablar
 from luces import apagarLuces, encenderLuces
@@ -14,6 +16,38 @@ from whatsapp import mensajeWhatsAPP
 
 
 esperando_cancion = False
+respuestas_hola = [
+    "Hola, ¿cómo estás?",
+    "Hola, ¿en qué te ayudo?",
+    "¡Hola! ¿Qué tal?",
+    "Hola, aquí estoy.",
+    "Hola, dime.",
+    "¡Hola! ¿Cómo va todo?",
+    "Hola, ¿qué necesitas?",
+    "Hola, listo para ayudar.",
+    "Hola, ¿qué tal tu día?",
+    "¡Hola! Te escucho.",
+    "Hola, ¿qué quieres hacer?",
+    "Hola, ¿en qué te puedo apoyar?",
+    "Hola, aquí estoy para ayudarte.",
+    "Hola, ¿qué onda?",
+    "¡Hola! ¿Cómo te sientes?",
+    "Hola, ¿qué pasa?",
+    "Hola, ¿todo bien?",
+    "¡Hola! ¿Qué hay de nuevo?",
+    "Hola, ¿qué cuentas?",
+    "Hola, ¿cómo te va?",
+    "¡Hola! ¿Qué necesitas hoy?",
+    "Hola, listo.",
+    "Hola, ¿con qué empezamos?",
+    "Hola, ¿cómo puedo ayudarte?",
+    "Hola, ¿alguna canción?",
+    "Hola, ¿quieres música?",
+    "¡Hola! Aquí estoy.",
+    "Hola, ¿qué se ofrece?",
+    "Hola, ¿qué hacemos?",
+    "Hola, ¿qué tal todo?",
+]
 
 
 def desicion(texto: str) -> bool:
@@ -42,6 +76,9 @@ def desicion(texto: str) -> bool:
     if texto == "salir":
         hablar("Hasta luego")
         return False
+
+    elif texto in ("hola", "hoa"):
+        hablar(random.choice(respuestas_hola))
 
     elif texto == "ayudame":
         hablar("¿En qué puedo ayudarte?")
