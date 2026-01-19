@@ -7,6 +7,7 @@ from core.state import (
     STATE_WAIT_WHATSAPP_CONFIRM,
     STATE_IDLE,
 )
+from hablar import hablar
 from skills.skill_types import SkillResult
 from utils.texto import contiene_frase, extraer_regex, normalizar_texto
 from whatsapp import mensajeWhatsAPP
@@ -61,10 +62,14 @@ def _confirmado(comando: str, estado: AssistantState) -> bool:
 def handle(comando: str, estado: AssistantState) -> SkillResult:
     def enviar_en_segundo_plano(numero: str, mensaje: str):
         threading.Thread(
-            target=mensajeWhatsAPP,
+            target=_enviar_y_confirmar,
             args=(numero, mensaje),
             daemon=True,
         ).start()
+
+    def _enviar_y_confirmar(numero: str, mensaje: str):
+        mensajeWhatsAPP(numero, mensaje)
+        hablar("Mensaje enviado.")
 
     if estado.safe_mode:
         return SkillResult(True, "Modo seguro activo: no puedo enviar mensajes.", detected_intent="whatsapp")
@@ -99,7 +104,7 @@ def handle(comando: str, estado: AssistantState) -> SkillResult:
                     "mensaje": mensaje,
                 })
                 estado.current_state = STATE_IDLE
-                return SkillResult(True, "Mensaje enviado.", detected_intent="whatsapp")
+                return SkillResult(True, "Enviando mensaje...", detected_intent="whatsapp")
             estado.current_state = STATE_IDLE
             return SkillResult(True, "No pude enviar el mensaje. Intenta de nuevo.", detected_intent="whatsapp")
 

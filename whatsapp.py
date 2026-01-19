@@ -11,22 +11,26 @@ def mensajeWhatsAPP(numero: str, mensaje: str):
 
     # <-- ÚNICA MODIFICACIÓN REAL: presionar Enter para enviarlo
     time.sleep(2)
-    _activar_ventana_whatsapp()
+    _activar_ventana_whatsapp(reintentos=10, pausa=0.4)
     pyautogui.press("enter")
 
     time.sleep(1)
 
 
-def _activar_ventana_whatsapp():
+def _activar_ventana_whatsapp(reintentos: int = 5, pausa: float = 0.3) -> bool:
     try:
         ventanas = pyautogui.getWindowsWithTitle("WhatsApp")
     except AttributeError:
-        return
+        return False
 
-    for ventana in ventanas:
-        try:
-            ventana.activate()
-            time.sleep(0.5)
-            return
-        except Exception:
-            continue
+    for _ in range(reintentos):
+        for ventana in ventanas:
+            try:
+                ventana.activate()
+                time.sleep(pausa)
+                return True
+            except Exception:
+                continue
+        time.sleep(pausa)
+
+    return False
