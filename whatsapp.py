@@ -16,15 +16,11 @@ def mensajeWhatsAPP(numero: str, mensaje: str) -> bool:
     if not _esperar_whatsapp_listo(inicio=inicio):
         return False
 
-    if not _enfocar_input_whatsapp():
-        return False
+    _enfocar_input_whatsapp()
 
     pyautogui.press("enter")
 
     time.sleep(1)
-    if _asegurar_ventana_whatsapp() and _enfocar_input_whatsapp():
-        pyautogui.press("enter")
-        time.sleep(0.5)
     return True
 
 
