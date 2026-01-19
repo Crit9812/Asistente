@@ -20,7 +20,8 @@ def mensajeWhatsAPP(numero: str, mensaje: str) -> bool:
 
     pyautogui.press("enter")
 
-    time.sleep(1)
+    time.sleep(3)
+    pyautogui.press("enter")
     return True
 
 
