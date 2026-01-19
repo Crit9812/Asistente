@@ -9,7 +9,11 @@ def mensajeWhatsAPP(numero: str, mensaje: str) -> bool:
     url = _construir_url_whatsapp(numero, mensaje)
     webbrowser.open(url, new=0)
 
+    inicio = time.time()
     if not _esperar_y_enfocar_whatsapp():
+        return False
+
+    if not _esperar_whatsapp_listo(inicio=inicio):
         return False
 
     pyautogui.press("enter")
@@ -82,4 +86,32 @@ def _esperar_y_enfocar_whatsapp(timeout: float = 20.0, pausa: float = 0.5) -> bo
         if _asegurar_ventana_whatsapp():
             return True
         time.sleep(pausa)
+    return False
+
+
+def _esperar_whatsapp_listo(
+    inicio: float,
+    timeout: float = 20.0,
+    pausa: float = 0.5,
+    minimo_espera: float = 4.0,
+    checks_estables: int = 3,
+) -> bool:
+    limite = time.time() + timeout
+    checks = 0
+    while time.time() < limite:
+        if not _asegurar_ventana_whatsapp():
+            checks = 0
+            time.sleep(pausa)
+            continue
+
+        if time.time() - inicio < minimo_espera:
+            time.sleep(pausa)
+            continue
+
+        checks += 1
+        if checks >= checks_estables:
+            return True
+
+        time.sleep(pausa)
+
     return False
