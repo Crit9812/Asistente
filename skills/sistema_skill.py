@@ -14,8 +14,6 @@ def _confirmado(comando: str, estado: AssistantState) -> bool:
     comando_normalizado = normalizar_texto(comando)
     if "no" in comando_normalizado:
         return False
-    if estado.confirmation_code and estado.confirmation_code not in comando_normalizado:
-        return False
     return contiene_frase(comando_normalizado, ("si", "sí", "confirmo", "adelante"))
 
 
@@ -32,4 +30,4 @@ def handle(comando: str, estado: AssistantState) -> SkillResult:
         return SkillResult(True, "Entendido, cancelé el apagado.", detected_intent="sistema")
 
     estado.current_state = STATE_WAIT_PC_CONFIRM
-    return SkillResult(True, "¿Seguro? di 'sí' y el código de voz para confirmar.", detected_intent="sistema")
+    return SkillResult(True, "¿Seguro? di 'sí' para confirmar.", detected_intent="sistema")

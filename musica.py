@@ -15,6 +15,7 @@ def reproducirCancionSpotify(nombre_cancion: str):
         ventana_youtube_abierta = True
         return
 
+    _activar_ventana_youtube()
     pyautogui.hotkey("ctrl", "l")
     pyautogui.typewrite(video_url)
     pyautogui.press("enter")
@@ -26,6 +27,20 @@ def pausarMusica():
 
 def reanudarMusica():
     pyautogui.press("k")
+
+
+def _activar_ventana_youtube():
+    try:
+        ventanas = pyautogui.getWindowsWithTitle("YouTube")
+    except AttributeError:
+        return
+
+    for ventana in ventanas:
+        try:
+            ventana.activate()
+            return
+        except Exception:
+            continue
 
 
 def normalizarTexto(texto: str) -> str:

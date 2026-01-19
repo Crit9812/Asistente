@@ -1,6 +1,7 @@
+import time
+
 import pyautogui
 import pywhatkit
-import time
 
 
 def mensajeWhatsAPP(numero: str, mensaje: str):
@@ -10,6 +11,22 @@ def mensajeWhatsAPP(numero: str, mensaje: str):
 
     # <-- ÚNICA MODIFICACIÓN REAL: presionar Enter para enviarlo
     time.sleep(2)
+    _activar_ventana_whatsapp()
     pyautogui.press("enter")
 
     time.sleep(1)
+
+
+def _activar_ventana_whatsapp():
+    try:
+        ventanas = pyautogui.getWindowsWithTitle("WhatsApp")
+    except AttributeError:
+        return
+
+    for ventana in ventanas:
+        try:
+            ventana.activate()
+            time.sleep(0.5)
+            return
+        except Exception:
+            continue

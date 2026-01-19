@@ -31,9 +31,13 @@ def match(comando: str, estado: AssistantState) -> bool:
         comando,
         (
             "manda un mensaje por whatsapp",
+            "manda un mensaje",
             "manda mensaje por whatsapp",
+            "manda mensaje",
             "manda whatsapp",
             "envia mensaje por whatsapp",
+            "envia un mensaje",
+            "envía un mensaje",
             "manda a",
         ),
     )
@@ -50,8 +54,6 @@ def _obtener_contacto(comando: str) -> str:
 def _confirmado(comando: str, estado: AssistantState) -> bool:
     comando_normalizado = normalizar_texto(comando)
     if "no" in comando_normalizado:
-        return False
-    if estado.confirmation_code and estado.confirmation_code not in comando_normalizado:
         return False
     return contiene_frase(comando_normalizado, ("si", "sí", "confirmo", "adelante"))
 
@@ -83,8 +85,8 @@ def handle(comando: str, estado: AssistantState) -> SkillResult:
         estado.memory["last_message"] = comando
         estado.current_state = STATE_WAIT_WHATSAPP_CONFIRM
         if estado.silent_mode:
-            return SkillResult(True, "Listo, tengo el mensaje. ¿Confirmas el envío? di 'sí' y el código de voz.", detected_intent="whatsapp")
-        return SkillResult(True, f"Vas a enviar: {comando}. ¿Confirmas el envío? di 'sí' y el código de voz.", detected_intent="whatsapp")
+            return SkillResult(True, "Listo, tengo el mensaje. ¿Confirmas el envío?", detected_intent="whatsapp")
+        return SkillResult(True, f"Vas a enviar: {comando}. ¿Confirmas el envío?", detected_intent="whatsapp")
 
     if estado.current_state == STATE_WAIT_WHATSAPP_CONFIRM:
         if _confirmado(comando, estado):
@@ -113,7 +115,7 @@ def handle(comando: str, estado: AssistantState) -> SkillResult:
         estado.memory["last_contact"] = contacto
         estado.memory["last_message"] = mensaje
         estado.current_state = STATE_WAIT_WHATSAPP_CONFIRM
-        resumen = "Listo, tengo el mensaje. ¿Confirmas el envío? di 'sí' y el código de voz." if estado.silent_mode else f"Vas a enviar: {mensaje}. ¿Confirmas el envío? di 'sí' y el código de voz."
+        resumen = "Listo, tengo el mensaje. ¿Confirmas el envío?" if estado.silent_mode else f"Vas a enviar: {mensaje}. ¿Confirmas el envío?"
         return SkillResult(True, resumen, detected_intent="whatsapp")
 
     estado.current_state = STATE_WAIT_WHATSAPP_CONTACT

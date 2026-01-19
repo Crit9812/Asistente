@@ -20,7 +20,6 @@ class AssistantState:
     silent_mode: bool = False
     debug_mode: bool = False
     safe_mode: bool = False
-    confirmation_code: str = "codigo seguro"
     pending: dict[str, Any] = field(default_factory=dict)
     memory: dict[str, Any] = field(default_factory=lambda: {
         "last_action": None,

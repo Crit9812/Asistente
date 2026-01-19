@@ -1,6 +1,6 @@
 from core.state import AssistantState
 from skills.skill_types import SkillResult
-from utils.texto import contiene_frase, extraer_regex, normalizar_texto
+from utils.texto import contiene_frase, normalizar_texto
 
 
 def match(comando: str, estado: AssistantState) -> bool:
@@ -15,8 +15,6 @@ def match(comando: str, estado: AssistantState) -> bool:
             "modo seguro",
             "modo nino",
             "modo niño",
-            "codigo de voz",
-            "código de voz",
             "ayuda",
             "ayudame",
             "que puedes hacer",
@@ -69,10 +67,5 @@ def handle(comando: str, estado: AssistantState) -> SkillResult:
     if contiene_frase(comando_normalizado, ("modo seguro", "modo nino", "modo niño")):
         estado.safe_mode = True
         return SkillResult(True, "Modo seguro activado.", detected_intent="modos")
-
-    match_codigo = extraer_regex(r"codigo\s+de\s+voz\s+(.+)", comando_normalizado)
-    if match_codigo:
-        estado.confirmation_code = match_codigo.group(1).strip()
-        return SkillResult(True, "Código de voz actualizado.", detected_intent="modos")
 
     return SkillResult(False)

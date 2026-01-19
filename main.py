@@ -28,7 +28,7 @@ estado = AssistantState()
 # - "apaga/enciende las luces": controla luces.
 # - "pon música / reproduce música": pide canción o reproduce si se da el título.
 # - "pausa / reanuda": controla reproducción.
-# - "manda a <contacto>: <mensaje>": prepara WhatsApp y pide confirmación con código.
+# - "manda/envía un mensaje" o "manda a <contacto>: <mensaje>": prepara WhatsApp y pide confirmación.
 # - "cambia contacto": reinicia flujo de WhatsApp.
 # - "recuérdame <texto> en X minutos/horas/mañana a las HH:MM": crea recordatorio.
 # - "pon alarma en X minutos/horas/a las HH:MM": crea alarma.
@@ -40,8 +40,7 @@ estado = AssistantState()
 # - "repite la última acción / deshaz eso": repite o revierte la acción previa.
 # - "modo silencioso / modo público": controla lectura de mensajes.
 # - "modo seguro / modo niño": bloquea acciones peligrosas.
-# - "código de voz <palabra>": cambia palabra de confirmación.
-#   Código actual por defecto: "codigo seguro".
+# - confirmación de acciones peligrosas: responder "sí" para confirmar.
 # - "salir": finaliza la sesión.
 
 def decir(texto: str):
