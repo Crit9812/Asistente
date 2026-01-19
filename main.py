@@ -41,6 +41,7 @@ estado = AssistantState()
 # - "modo silencioso / modo público": controla lectura de mensajes.
 # - "modo seguro / modo niño": bloquea acciones peligrosas.
 # - "código de voz <palabra>": cambia palabra de confirmación.
+#   Código actual por defecto: "codigo seguro".
 # - "salir": finaliza la sesión.
 
 def decir(texto: str):
