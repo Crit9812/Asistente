@@ -1,81 +1,53 @@
-import win32com.client
-import speech_recognition as sr
-import urllib.request
-import pywhatkit
-import time
-import pyautogui  # <-- ÚNICO IMPORT NUEVO
-import os
-import unicodedata
-import webbrowser
+import random
+
+from escuchar import reconocerVoz
+from hablar import hablar
+from luces import apagarLuces, encenderLuces
+from musica import (
+    esSolicitudCancion,
+    esSolicitudPausa,
+    esSolicitudReanudar,
+    pausarMusica,
+    reanudarMusica,
+    reproducirCancionSpotify,
+)
+from sistema import apagarComputadora
+from whatsapp import mensajeWhatsAPP
 
 
-speaker = win32com.client.Dispatch("SAPI.SpVoice")
-
-# === Luces (ya tenías esto) ===
-ESP_IP = "192.168.1.50"
-NUM_STRIPS = 3
 esperando_cancion = False
-ventana_youtube_abierta = False
-
-
-def hablar(texto: str):
-    """Pronuncia el texto recibido usando la voz de Windows."""
-    speaker.Speak(texto)
-
-
-def encenderLuces():
-    for i in range(NUM_STRIPS):
-        url = f"http://{ESP_IP}/power?strip={i}&state=1"
-        urllib.request.urlopen(url, timeout=2).read()
-
-
-def apagarLuces():
-    for i in range(NUM_STRIPS):
-        url = f"http://{ESP_IP}/power?strip={i}&state=0"
-        urllib.request.urlopen(url, timeout=2).read()
-
-
-# === NUEVO: WhatsApp ===
-def mensajeWhatsAPP(numero: str, mensaje: str):
-    # Abre WhatsApp Web y envía el mensaje al contacto/numero
-    # wait_time: segundos para que cargue WhatsApp Web antes de enviar
-    pywhatkit.sendwhatmsg_instantly(numero, mensaje, wait_time=15, tab_close=True, close_time=3)
-
-    # <-- ÚNICA MODIFICACIÓN REAL: presionar Enter para enviarlo
-    time.sleep(2)
-    pyautogui.press("enter")
-
-    time.sleep(1)
-
-
-def reproducirCancionSpotify(nombre_cancion: str):
-    global ventana_youtube_abierta
-    video_url = pywhatkit.playonyt(nombre_cancion, open_video=False)
-    if not ventana_youtube_abierta:
-        webbrowser.open(video_url, new=0)
-        ventana_youtube_abierta = True
-        return
-
-    pyautogui.hotkey("ctrl", "l")
-    pyautogui.typewrite(video_url)
-    pyautogui.press("enter")
-
-
-def normalizarTexto(texto: str) -> str:
-    return "".join(
-        caracter
-        for caracter in unicodedata.normalize("NFD", texto)
-        if unicodedata.category(caracter) != "Mn"
-    )
-
-
-def esSolicitudCancion(texto: str) -> bool:
-    texto_normalizado = normalizarTexto(texto)
-    palabras_clave = ("cancion", "musica")
-    verbos = ("quiero", "pon", "ponme", "reproduce", "reproducir", "toca", "escuchar")
-    return any(palabra in texto_normalizado for palabra in palabras_clave) and any(
-        verbo in texto_normalizado for verbo in verbos
-    )
+respuestas_hola = [
+    "Hola, ¿cómo estás?",
+    "Hola, ¿en qué te ayudo?",
+    "¡Hola! ¿Qué tal?",
+    "Hola, aquí estoy.",
+    "Hola, dime.",
+    "¡Hola! ¿Cómo va todo?",
+    "Hola, ¿qué necesitas?",
+    "Hola, listo para ayudar.",
+    "Hola, ¿qué tal tu día?",
+    "¡Hola! Te escucho.",
+    "Hola, ¿qué quieres hacer?",
+    "Hola, ¿en qué te puedo apoyar?",
+    "Hola, aquí estoy para ayudarte.",
+    "Hola, ¿qué onda?",
+    "¡Hola! ¿Cómo te sientes?",
+    "Hola, ¿qué pasa?",
+    "Hola, ¿todo bien?",
+    "¡Hola! ¿Qué hay de nuevo?",
+    "Hola, ¿qué cuentas?",
+    "Hola, ¿cómo te va?",
+    "¡Hola! ¿Qué necesitas hoy?",
+    "Hola, listo.",
+    "Hola, ¿con qué empezamos?",
+    "Hola, ¿cómo puedo ayudarte?",
+    "Hola, ¿alguna canción?",
+    "Hola, ¿quieres música?",
+    "¡Hola! Aquí estoy.",
+    "Hola, ¿qué se ofrece?",
+    "Hola, ¿qué hacemos?",
+    "Hola, ¿qué tal todo?",
+]
 
 
 def desicion(texto: str) -> bool:
@@ -105,6 +77,9 @@ def desicion(texto: str) -> bool:
         hablar("Hasta luego")
         return False
 
+    elif texto in ("hola", "hoa"):
+        hablar(random.choice(respuestas_hola))
+
     elif texto == "ayudame":
         hablar("¿En qué puedo ayudarte?")
 
@@ -114,6 +89,14 @@ def desicion(texto: str) -> bool:
     elif texto == "enciende las luces":
         encenderLuces()
 
+    elif esSolicitudPausa(texto):
+        hablar("Pausando la música")
+        pausarMusica()
+
+    elif esSolicitudReanudar(texto):
+        hablar("Reanudando la música")
+        reanudarMusica()
+
     elif esSolicitudCancion(texto):
         hablar("Si cual quieres")
         esperando_cancion = True
@@ -121,7 +104,6 @@ def desicion(texto: str) -> bool:
     elif texto == "apaga la computadora":
         hablar("Apagando la computadora")
         apagarComputadora()
-
 
     elif texto.startswith("manda un mensaje por whatsapp"):
         mensaje = texto.replace("dile a octavio en whatsapp que", "", 1).strip()
@@ -134,47 +116,4 @@ def desicion(texto: str) -> bool:
     return True
 
 
-def textoAVoz():
-    while True:
-        text = input("> ").strip().lower()
-        if not desicion(text):
-            break
-        
-        
-
-
-def reconocerVoz():
-    r = sr.Recognizer()
-    try:
-        mic = sr.Microphone()
-    except OSError:
-        print("No se detectó un micrófono. Conecta uno e intenta de nuevo.")
-        return
-
-    with mic as source:
-        r.adjust_for_ambient_noise(source, duration=0.8)
-
-        while True:
-            print("🎤 Escuchando...")
-            audio = r.listen(source)
-
-            try:
-                texto = r.recognize_google(audio, language="es-MX").strip().lower()
-                print(f"📝 Tú dijiste: {texto}")
-
-                if not desicion(texto):
-                    break
-
-            except sr.UnknownValueError:
-                print("No entendí lo que dijiste. Intenta de nuevo.")
-            except sr.RequestError as e:
-                print("Error con el servicio de reconocimiento (¿internet?).")
-                print(f"Detalle: {e}")
-                break
-
-def apagarComputadora():
-    os.system("shutdown /s /t 0")
-
-
-
-reconocerVoz()
+reconocerVoz(desicion)
